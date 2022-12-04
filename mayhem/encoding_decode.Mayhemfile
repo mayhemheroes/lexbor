@@ -1,0 +1,6 @@
+project: lexbor
+target: encoding-decode
+
+cmds:
+  - cmd: /fuzz_binaries/decode
+    libfuzzer: true
