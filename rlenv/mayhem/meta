@@ -1,0 +1,11 @@
+{
+  "workspace": "mayhemheroes",
+  "project": "lexbor",
+  "target": "css-tokenizer",
+  "run_id": "1",
+  "ci_url": "https://github.com:443/mayhemheroes/lexbor//actions/runs/4297266543",
+  "run_image_name": "ghcr.io/mayhemheroes/lexbor:master",
+  "run_image_with_digest": "ghcr.io/mayhemheroes/lexbor@sha256:6418e074aeba9cde3699a9a0bd5bbb7161dfdac9c32e313dfb66aeb1fab599ad",
+  "git_repo_url": "git@github.com:mayhemheroes/lexbor.git",
+  "git_revision": "6a0571986cca5ee0647648d0877973d0e35521e6"
+}

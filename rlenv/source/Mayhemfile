@@ -1,0 +1,11 @@
+project: mayhemheroes/lexbor
+target: css-tokenizer
+
+cmds:
+  - cmd: /fuzz_binaries/tokenizer
+    libfuzzer: true
+    env: {}
+image: ghcr.io/mayhemheroes/lexbor@sha256:6418e074aeba9cde3699a9a0bd5bbb7161dfdac9c32e313dfb66aeb1fab599ad
+duration: 300
+testsuite:
+  - https://app.mayhem.security/mayhemheroes/lexbor/css-tokenizer/testsuite.tar

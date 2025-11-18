@@ -1,0 +1,110 @@
+# ============================================================================
+# RLENV Patch Playground - Single-Stage Build
+# ============================================================================
+# Original image: ghcr.io/mayhemheroes/lexbor:master
+# Git revision: 6a0571986cca5ee0647648d0877973d0e35521e6
+# Target: css-tokenizer (lexbor CSS tokenizer fuzzer)
+
+# ============================================================================
+# 1. Base Image Selection
+# ============================================================================
+FROM --platform=linux/amd64 ubuntu:20.04
+
+# ============================================================================
+# 2. System Dependencies (merged from all stages)
+# ============================================================================
+RUN apt-get update && \
+    DEBIAN_FRONTEND=noninteractive apt-get install -y \
+    cmake \
+    clang \
+    jq \
+    && rm -rf /var/lib/apt/lists/*
+
+# ============================================================================
+# 3. Copy MTV Binary (REQUIRED - used by validate.sh)
+# ============================================================================
+COPY --from="us-east4-docker.pkg.dev/forallsecure-1/rlenv-staging/rlenv-mcp-static:latest" \
+     /rlenv/bin/mtv /rlenv/bin/mtv
+
+# ============================================================================
+# 4. Language-Specific Setup
+# ============================================================================
+ENV FUZZING_LANGUAGE=c
+ENV CC=clang
+ENV CXX=clang++
+
+# ============================================================================
+# 5. Copy Source Code (EARLY - source exists now)
+# ============================================================================
+COPY . /rlenv/source/lexbor/
+
+# ============================================================================
+# 6. Make Source World-Writable (REQUIRED for non-root rebuilds)
+# ============================================================================
+RUN chmod -R 777 /rlenv/source
+
+# ============================================================================
+# 7. Set Working Directory
+# ============================================================================
+WORKDIR /rlenv/source/lexbor/
+
+# ============================================================================
+# 8. Install Language Dependencies (if any)
+# ============================================================================
+# No additional language dependencies needed for this C project
+
+# ============================================================================
+# 9. Build Application
+# ============================================================================
+RUN mkdir -p build
+WORKDIR /rlenv/source/lexbor/build
+
+RUN CC=clang CXX=clang++ cmake \
+    -DLEXBOR_BUILD_TESTS=ON \
+    -DLEXBOR_BUILD_WITH_FUZZER=ON \
+    -DLEXBOR_BUILD_WITH_ASAN=ON \
+    -DLEXBOR_BUILD_EXAMPLES=ON \
+    -DLEXBOR_BUILD_SHARED=OFF \
+    -DLEXBOR_BUILD_STATIC=ON \
+    ..
+
+RUN make -j$(nproc) \
+    fuzz_lexbor_css_syntax_test_fuzzers_lexbor_css_syntax_tokenizer \
+    fuzz_lexbor_encoding_test_fuzzers_lexbor_encoding_decode \
+    fuzz_lexbor_html_test_fuzzers_lexbor_html_document_parse
+
+# ============================================================================
+# 10. Copy Artifacts to Expected Locations
+# ============================================================================
+RUN mkdir -p /fuzz_binaries && \
+    find test/fuzzers/lexbor/ -executable -type f | xargs cp -t /fuzz_binaries/
+
+# ============================================================================
+# 11. Permission Management (REQUIRED)
+# ============================================================================
+# Target executable (rwxrw-rw-)
+RUN chmod 766 /fuzz_binaries/tokenizer
+
+# Build output directory
+RUN chmod -R 777 /fuzz_binaries
+RUN chmod -R 777 /rlenv/source/lexbor/build 2>/dev/null || true
+
+# ============================================================================
+# 12. Copy rlenv Directory (MUST BE NEAR END - doesn't exist yet!)
+# ============================================================================
+COPY rlenv /rlenv
+
+# ============================================================================
+# 13. Final Permission Fix (REQUIRED)
+# ============================================================================
+RUN chmod -R 777 /rlenv/source
+
+# ============================================================================
+# 14. Set Entry Point
+# ============================================================================
+CMD ["/fuzz_binaries/tokenizer"]
+
+# ============================================================================
+# 15. Reset Working Directory
+# ============================================================================
+WORKDIR /
