@@ -8,6 +8,6 @@
   "run_image_with_digest": "ghcr.io/mayhemheroes/lexbor@sha256:6418e074aeba9cde3699a9a0bd5bbb7161dfdac9c32e313dfb66aeb1fab599ad",
   "git_repo_url": "git@github.com:mayhemheroes/lexbor.git",
   "git_revision": "6a0571986cca5ee0647648d0877973d0e35521e6",
-  "target_executable": null,
+  "target_executable": "/fuzz_binaries/tokenizer",
   "working_dir": ""
 }
