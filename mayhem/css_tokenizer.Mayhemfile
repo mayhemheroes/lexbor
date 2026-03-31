@@ -1,0 +1,6 @@
+project: lexbor
+target: css-tokenizer
+
+cmds:
+  - cmd: /fuzz_binaries/tokenizer
+    libfuzzer: true

@@ -1,0 +1,6 @@
+project: lexbor
+target: html-document-parse
+
+cmds:
+  - cmd: /fuzz_binaries/document_parse
+    libfuzzer: true
