@@ -1,0 +1,6 @@
+project: lexbor
+target: html-document-parse
+
+cmds:
+  - cmd: /mayhem/build/document_parse
+    libfuzzer: true

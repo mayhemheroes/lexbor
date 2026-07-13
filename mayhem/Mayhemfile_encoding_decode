@@ -1,0 +1,6 @@
+project: lexbor
+target: encoding-decode
+
+cmds:
+  - cmd: /mayhem/build/decode
+    libfuzzer: true
